@@ -1,4 +1,4 @@
-Below is a comprehensive README for your project, tailored for GitHub, based on the real estate management system (REMA) you've been working on. It follows the structure of the example you provided and includes details specific to your buyer, seller, and agent dashboards.
+
 
 ---
 
