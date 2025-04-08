@@ -160,7 +160,7 @@ Contributions are welcome! To contribute:
 This project is licensed under the MIT License. Feel free to use, modify, and distribute it as needed.
 
 ## Acknowledgements
-- **Contributors**: [Your Name] (add collaborators if applicable).
+- **Contributors**: Rishikesh Talpaliker,Lahari Makkena,Ratnachand Kancharla
 - **Inspiration**: This project showcases the integration of web technologies with database management for real estate operations, built as a learning exercise or practical application.
 
 ---
