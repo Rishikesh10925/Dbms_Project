@@ -1,16 +1,12 @@
 <?php
-// Read database configuration from environment variables (works on Render)
-$host = getenv('DB_HOST') ?: 'localhost';
-$db = getenv('DB_NAME') ?: 'real_estate_db';
-$user = getenv('DB_USER') ?: 'root'; // Replace with your MySQL username
-$pass = getenv('DB_PASS') ?: '';     // Replace with your MySQL password
-$charset = 'utf8mb4';
+    $db_host = getenv('DB_HOST');
+    $db_user = getenv('DB_USER');
+    $db_pass = getenv('DB_PASS');
+    $db_name = getenv('DB_NAME');
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=$charset", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    // In production, avoid exposing raw error details. Render will show logs.
-    die("Connection failed: " . $e->getMessage());
-}
+    $con = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+
+    if (mysqli_connect_errno()) {
+     echo "Connection failed: " . mysqli_connect_error();
+    }
 ?>
