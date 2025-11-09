@@ -11,16 +11,19 @@ $property_id = $_GET['id'];
 $user_id = $_SESSION['user_id'];
 
 $sql = "SELECT * FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
-$stmt = $con->prepare($sql);
-$stmt->execute([':property_id' => $property_id, ':user_id' => $user_id]);
-$property = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt = execute_named_query($con, $sql, [':property_id' => $property_id, ':user_id' => $user_id]);
+$property = null;
+if ($stmt) {
+    $res = $stmt->get_result();
+    $property = $res ? $res->fetch_assoc() : null;
+}
 
 if (!$property) {
     die("Property not found or not editable.");
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
+    // Update property using helper
         $property_type = $_POST['property_type'];
         $property_size = $_POST['property_size'];
         $size_unit = $_POST['size_unit'];
@@ -44,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 future_value = :future_value, seller_type = :seller_type, negotiation = :negotiation, 
                 brokering = :brokering, location = :location, city = :city, usage_type = :usage_type 
                 WHERE property_id = :property_id AND user_id = :user_id";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([
+        $params = [
             ':property_type' => $property_type,
             ':property_size' => $property_size,
             ':size_unit' => $size_unit,
@@ -63,11 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ':usage_type' => $usage_type,
             ':property_id' => $property_id,
             ':user_id' => $user_id
-        ]);
-        $success = "Property updated successfully!";
-    } catch (PDOException $e) {
-        $error = "Error updating property: " . $e->getMessage();
-    }
+        ];
+        $stmt = execute_named_query($con, $sql, $params);
+        if ($stmt) {
+            $success = "Property updated successfully!";
+        } else {
+            $error = "Error updating property: " . mysqli_error($con);
+        }
 }
 ?>
 <!DOCTYPE html>

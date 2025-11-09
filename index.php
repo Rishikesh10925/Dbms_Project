@@ -15,24 +15,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username']); // Trim to remove whitespace
     $password = $_POST['password'];
 
-    try {
-        // Check if username exists
-        $sql = "SELECT * FROM users WHERE username = :username";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([':username' => $username]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Check if username exists
+    $sql = "SELECT * FROM users WHERE username = :username";
+    $stmt = execute_named_query($con, $sql, [':username' => $username]);
+    $user = null;
+    if ($stmt) {
+        $res = $stmt->get_result();
+        $user = $res ? $res->fetch_assoc() : null;
+    } else {
+        $error = "Database error: " . mysqli_error($con);
+    }
 
-        // Verify user exists and password is correct
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['username'] = $user['username'];
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            $error = "Incorrect username or password";
-        }
-    } catch (PDOException $e) {
-        $error = "Database error: " . $e->getMessage();
+    // Verify user exists and password is correct
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['username'] = $user['username'];
+        header("Location: dashboard.php");
+        exit();
+    } else {
+        if (empty($error)) $error = "Incorrect username or password";
     }
 }
 ?>

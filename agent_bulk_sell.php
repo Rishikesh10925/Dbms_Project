@@ -10,33 +10,26 @@ if (!isset($_SESSION['user_id']) || !isset($_POST['property_ids'])) {
 $agent_id = $_SESSION['user_id'];
 $property_ids = $_POST['property_ids'];
 
-try {
-    foreach ($property_ids as $property_id) {
-        // Verify the property belongs to the agent and is available
-        $sql = "SELECT * FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([':property_id' => $property_id, ':user_id' => $agent_id]);
-        $property = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($property) {
-            $sql = "INSERT INTO transactions (property_id, agent_id, transaction_type, status) 
-                    VALUES (:property_id, :agent_id, :transaction_type, 'pending')";
-            $stmt = $con->prepare($sql);
-            $stmt->execute([
-                ':property_id' => $property_id,
-                ':agent_id' => $agent_id,
-                ':transaction_type' => $property['usage_type']
-            ]);
-
-            $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
-            $stmt = $con->prepare($sql);
-            $stmt->execute([':property_id' => $property_id]);
-        }
+foreach ($property_ids as $property_id) {
+    // Verify the property belongs to the agent and is available
+    $sql = "SELECT * FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
+    $stmt = execute_named_query($con, $sql, [':property_id' => $property_id, ':user_id' => $agent_id]);
+    $property = null;
+    if ($stmt) {
+        $res = $stmt->get_result();
+        $property = $res ? $res->fetch_assoc() : null;
     }
-    $success = "Bulk sell request submitted successfully!";
-} catch (PDOException $e) {
-    $error = "Error processing bulk sell: " . $e->getMessage();
+
+    if ($property) {
+        $sql = "INSERT INTO transactions (property_id, agent_id, transaction_type, status) 
+                VALUES (:property_id, :agent_id, :transaction_type, 'pending')";
+        $stmt = execute_named_query($con, $sql, [':property_id' => $property_id, ':agent_id' => $agent_id, ':transaction_type' => $property['usage_type']]);
+
+        $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
+        $stmt = execute_named_query($con, $sql, [':property_id' => $property_id]);
+    }
 }
+$success = "Bulk sell request submitted successfully!";
 ?>
 <!DOCTYPE html>
 <html>

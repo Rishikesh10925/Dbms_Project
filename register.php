@@ -9,19 +9,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $sql = "INSERT INTO users (username, password, email, contact_info) 
             VALUES (:username, :password, :email, :contact_info)";
-    $stmt = $con->prepare($sql);
-    
-    try {
-        $stmt->execute([
-            ':username' => $username,
-            ':password' => $password,
-            ':email' => $email,
-            ':contact_info' => $contact_info
-        ]);
+
+    $params = [
+        ':username' => $username,
+        ':password' => $password,
+        ':email' => $email,
+        ':contact_info' => $contact_info
+    ];
+
+    $stmt = execute_named_query($con, $sql, $params);
+    if ($stmt) {
         header("Location: index.php");
         exit();
-    } catch (PDOException $e) {
-        $error = "Error: " . $e->getMessage();
+    } else {
+        $error = "Error: " . mysqli_error($con);
     }
 }
 ?>

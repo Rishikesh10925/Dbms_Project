@@ -12,36 +12,34 @@ $seller_id = $_SESSION['user_id'];
 
 // Verify the transaction belongs to the seller's property
 $sql = "SELECT t.*, p.user_id AS seller_id 
-        FROM transactions t 
-        JOIN properties p ON t.property_id = p.property_id 
-        WHERE t.transaction_id = :transaction_id AND t.status = 'pending'";
-$stmt = $con->prepare($sql);
-$stmt->execute([':transaction_id' => $transaction_id]);
-$transaction = $stmt->fetch(PDO::FETCH_ASSOC);
+    FROM transactions t 
+    JOIN properties p ON t.property_id = p.property_id 
+    WHERE t.transaction_id = :transaction_id AND t.status = 'pending'";
+$stmt = execute_named_query($con, $sql, [':transaction_id' => $transaction_id]);
+$transaction = null;
+if ($stmt) {
+    $res = $stmt->get_result();
+    $transaction = $res ? $res->fetch_assoc() : null;
+}
 
 if (!$transaction || $transaction['seller_id'] != $seller_id) {
     die("Invalid transaction or unauthorized access.");
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
-        // Update transaction status to confirmed
-        $sql = "UPDATE transactions SET status = 'confirmed' WHERE transaction_id = :transaction_id";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([':transaction_id' => $transaction_id]);
+    // Update transaction status to confirmed
+    $sql = "UPDATE transactions SET status = 'confirmed' WHERE transaction_id = :transaction_id";
+    $stmt = execute_named_query($con, $sql, [':transaction_id' => $transaction_id]);
 
-        // Optionally update property status (e.g., to 'sold' for sales)
-        $new_property_status = ($transaction['transaction_type'] == 'sale') ? 'sold' : 'pending';
-        $sql = "UPDATE properties SET status = :status WHERE property_id = :property_id";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([
-            ':status' => $new_property_status,
-            ':property_id' => $transaction['property_id']
-        ]);
+    // Optionally update property status (e.g., to 'sold' for sales)
+    $new_property_status = ($transaction['transaction_type'] == 'sale') ? 'sold' : 'pending';
+    $sql = "UPDATE properties SET status = :status WHERE property_id = :property_id";
+    $stmt = execute_named_query($con, $sql, [':status' => $new_property_status, ':property_id' => $transaction['property_id']]);
 
+    if ($stmt) {
         $success = "Purchase confirmed successfully!";
-    } catch (PDOException $e) {
-        $error = "Error confirming purchase: " . $e->getMessage();
+    } else {
+        $error = "Error confirming purchase: " . mysqli_error($con);
     }
 }
 ?>

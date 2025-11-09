@@ -11,34 +11,31 @@ $property_id = $_GET['id'];
 $buyer_id = $_SESSION['user_id'];
 
 $sql = "SELECT * FROM properties WHERE property_id = :property_id AND status = 'available'";
-$stmt = $con->prepare($sql);
-$stmt->execute([':property_id' => $property_id]);
-$property = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt = execute_named_query($con, $sql, [':property_id' => $property_id]);
+$property = null;
+if ($stmt) {
+    $res = $stmt->get_result();
+    $property = $res ? $res->fetch_assoc() : null;
+}
 
 if (!$property) {
     die("Property not found or already sold.");
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
-        // Insert transaction with pending status
-        $sql = "INSERT INTO transactions (property_id, buyer_id, transaction_type, status) 
-                VALUES (:property_id, :buyer_id, :transaction_type, 'pending')";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([
-            ':property_id' => $property_id,
-            ':buyer_id' => $buyer_id,
-            ':transaction_type' => $property['usage_type']
-        ]);
+    // Insert transaction with pending status
+    $sql = "INSERT INTO transactions (property_id, buyer_id, transaction_type, status) 
+            VALUES (:property_id, :buyer_id, :transaction_type, 'pending')";
+    $stmt = execute_named_query($con, $sql, [':property_id' => $property_id, ':buyer_id' => $buyer_id, ':transaction_type' => $property['usage_type']]);
 
-        // Update property status to pending
-        $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([':property_id' => $property_id]);
+    // Update property status to pending
+    $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
+    $stmt = execute_named_query($con, $sql, [':property_id' => $property_id]);
 
+    if ($stmt) {
         $success = "Purchase request submitted! Waiting for seller confirmation.";
-    } catch (PDOException $e) {
-        $error = "Error submitting request: " . $e->getMessage();
+    } else {
+        $error = "Error submitting request: " . mysqli_error($con);
     }
 }
 ?>

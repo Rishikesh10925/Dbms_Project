@@ -9,7 +9,8 @@ if (!isset($_SESSION['user_id'])) {
 
 // Handle property listing
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['edit_property_id'])) {
-    try {
+    // Insert new property
+    // (use execute_named_query helper to support existing named params)
         $user_id = $_SESSION['user_id'];
         $property_type = $_POST['property_type'];
         $property_size = $_POST['property_size'];
@@ -29,8 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['edit_property_id'])) 
 
         $sql = "INSERT INTO properties (user_id, property_type, property_size, size_unit, ownership_status, features, description, estimated_price_per_unit, total_value, future_value, seller_type, negotiation, brokering, location, city, usage_type) 
                 VALUES (:user_id, :property_type, :property_size, :size_unit, :ownership_status, :features, :description, :estimated_price_per_unit, :total_value, :future_value, :seller_type, :negotiation, :brokering, :location, :city, :usage_type)";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([
+        $params = [
             ':user_id' => $user_id,
             ':property_type' => $property_type,
             ':property_size' => $property_size,
@@ -47,41 +47,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['edit_property_id'])) 
             ':location' => $location,
             ':city' => $city,
             ':usage_type' => $usage_type
-        ]);
-        $success = "Property listed successfully!";
-    } catch (PDOException $e) {
-        $error = "Error listing property: " . $e->getMessage();
-    }
+        ];
+        $stmt = execute_named_query($con, $sql, $params);
+        if ($stmt) {
+            $success = "Property listed successfully!";
+        } else {
+            $error = "Error listing property: " . mysqli_error($con);
+        }
 }
 
 // Handle property deletion
 if (isset($_GET['delete_id'])) {
-    try {
-        $property_id = $_GET['delete_id'];
-        $sql = "DELETE FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([':property_id' => $property_id, ':user_id' => $_SESSION['user_id']]);
+    $property_id = $_GET['delete_id'];
+    $sql = "DELETE FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
+    $stmt = execute_named_query($con, $sql, [':property_id' => $property_id, ':user_id' => $_SESSION['user_id']]);
+    if ($stmt) {
         $success = "Property deleted successfully!";
-    } catch (PDOException $e) {
-        $error = "Error deleting property: " . $e->getMessage();
+    } else {
+        $error = "Error deleting property: " . mysqli_error($con);
     }
 }
 
 // Fetch user's listed properties
 $sql = "SELECT * FROM properties WHERE user_id = :user_id";
-$stmt = $con->prepare($sql);
-$stmt->execute([':user_id' => $_SESSION['user_id']]);
-$listed_properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = execute_named_query($con, $sql, [':user_id' => $_SESSION['user_id']]);
+$listed_properties = [];
+if ($stmt) {
+    $res = $stmt->get_result();
+    $listed_properties = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+}
 
 // Fetch pending buyer requests
 $sql = "SELECT t.transaction_id, t.property_id, t.buyer_id, t.transaction_type, p.property_type, p.property_size, p.size_unit, p.location, p.city, p.total_value, u.username AS buyer_username, u.contact_info AS buyer_contact 
-        FROM transactions t 
-        JOIN properties p ON t.property_id = p.property_id 
-        JOIN users u ON t.buyer_id = u.user_id 
-        WHERE p.user_id = :user_id AND t.status = 'pending'";
-$stmt = $con->prepare($sql);
-$stmt->execute([':user_id' => $_SESSION['user_id']]);
-$pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    FROM transactions t 
+    JOIN properties p ON t.property_id = p.property_id 
+    JOIN users u ON t.buyer_id = u.user_id 
+    WHERE p.user_id = :user_id AND t.status = 'pending'";
+$stmt = execute_named_query($con, $sql, [':user_id' => $_SESSION['user_id']]);
+$pending_requests = [];
+if ($stmt) {
+    $res = $stmt->get_result();
+    $pending_requests = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+}
 ?>
 <!DOCTYPE html>
 <html>

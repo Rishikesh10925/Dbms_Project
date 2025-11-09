@@ -12,31 +12,42 @@ $action = $_GET['action'] ?? 'buy';
 
 // Handle bulk buying
 if ($action == 'buy' && $_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
-        $city = $_POST['city'];
-        $sql = "SELECT * FROM properties WHERE city = :city AND status = 'available'";
-        $stmt = $con->prepare($sql);
-        $stmt->execute([':city' => $city]);
-        $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $error = "Error searching properties: " . $e->getMessage();
+    $city = $_POST['city'];
+    $sql = "SELECT * FROM properties WHERE city = :city AND status = 'available'";
+    $stmt = execute_named_query($con, $sql, [':city' => $city]);
+    $properties = [];
+    if ($stmt) {
+        $res = $stmt->get_result();
+        $properties = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    } else {
+        $error = "Error searching properties: " . mysqli_error($con);
     }
 }
 
 // Fetch agent's listed properties for bulk selling
 $sql = "SELECT * FROM properties WHERE user_id = :user_id AND status = 'available'";
-$stmt = $con->prepare($sql);
-$stmt->execute([':user_id' => $_SESSION['user_id']]);
-$agent_properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = execute_named_query($con, $sql, [':user_id' => $_SESSION['user_id']]);
+$agent_properties = [];
+if ($stmt) {
+    $res = $stmt->get_result();
+    $agent_properties = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+} else {
+    $agent_properties = [];
+}
 
 // Fetch agent's transaction history
 $sql = "SELECT p.*, t.transaction_type, t.status AS transaction_status 
         FROM transactions t 
         JOIN properties p ON t.property_id = p.property_id 
         WHERE t.agent_id = :agent_id";
-$stmt = $con->prepare($sql);
-$stmt->execute([':agent_id' => $_SESSION['user_id']]);
-$agent_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = execute_named_query($con, $sql, [':agent_id' => $_SESSION['user_id']]);
+$agent_history = [];
+if ($stmt) {
+    $res = $stmt->get_result();
+    $agent_history = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+} else {
+    $agent_history = [];
+}
 ?>
 <!DOCTYPE html>
 <html>

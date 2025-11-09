@@ -9,55 +9,59 @@ if (!isset($_SESSION['user_id'])) {
 
 $properties = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
-        $city = $_POST['city'];
-        $property_type = $_POST['property_type'];
-        $usage_type = $_POST['usage_type'];
-        $min_price = $_POST['min_price'] ?: 0;
-        $max_price = $_POST['max_price'] ?: 999999999;
-        $min_size = $_POST['min_size'] ?: 0;
-        $max_size = $_POST['max_size'] ?: 999999999;
-        $negotiation = isset($_POST['negotiation']) ? 1 : null;
-        $brokering = isset($_POST['brokering']) ? 1 : null;
+    $city = $_POST['city'];
+    $property_type = $_POST['property_type'];
+    $usage_type = $_POST['usage_type'];
+    $min_price = $_POST['min_price'] ?: 0;
+    $max_price = $_POST['max_price'] ?: 999999999;
+    $min_size = $_POST['min_size'] ?: 0;
+    $max_size = $_POST['max_size'] ?: 999999999;
+    $negotiation = isset($_POST['negotiation']) ? 1 : null;
+    $brokering = isset($_POST['brokering']) ? 1 : null;
 
-        $sql = "SELECT * FROM properties 
-                WHERE city = :city 
-                AND property_type = :property_type 
-                AND usage_type = :usage_type 
-                AND total_value BETWEEN :min_price AND :max_price 
-                AND property_size BETWEEN :min_size AND :max_size 
-                AND status = 'available'";
-        if ($negotiation !== null) $sql .= " AND negotiation = :negotiation";
-        if ($brokering !== null) $sql .= " AND brokering = :brokering";
+    $sql = "SELECT * FROM properties 
+            WHERE city = :city 
+            AND property_type = :property_type 
+            AND usage_type = :usage_type 
+            AND total_value BETWEEN :min_price AND :max_price 
+            AND property_size BETWEEN :min_size AND :max_size 
+            AND status = 'available'";
+    if ($negotiation !== null) $sql .= " AND negotiation = :negotiation";
+    if ($brokering !== null) $sql .= " AND brokering = :brokering";
 
-        $stmt = $con->prepare($sql);
-        $params = [
-            ':city' => $city,
-            ':property_type' => $property_type,
-            ':usage_type' => $usage_type,
-            ':min_price' => $min_price,
-            ':max_price' => $max_price,
-            ':min_size' => $min_size,
-            ':max_size' => $max_size
-        ];
-        if ($negotiation !== null) $params[':negotiation'] = $negotiation;
-        if ($brokering !== null) $params[':brokering'] = $brokering;
-        
-        $stmt->execute($params);
-        $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $error = "Error searching properties: " . $e->getMessage();
+    $params = [
+        ':city' => $city,
+        ':property_type' => $property_type,
+        ':usage_type' => $usage_type,
+        ':min_price' => $min_price,
+        ':max_price' => $max_price,
+        ':min_size' => $min_size,
+        ':max_size' => $max_size
+    ];
+    if ($negotiation !== null) $params[':negotiation'] = $negotiation;
+    if ($brokering !== null) $params[':brokering'] = $brokering;
+
+    $stmt = execute_named_query($con, $sql, $params);
+    $properties = [];
+    if ($stmt) {
+        $res = $stmt->get_result();
+        $properties = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    } else {
+        $error = "Error searching properties: " . mysqli_error($con);
     }
 }
 
 // Fetch user's purchase history
 $sql = "SELECT p.*, t.transaction_type, t.status AS transaction_status 
-        FROM transactions t 
-        JOIN properties p ON t.property_id = p.property_id 
-        WHERE t.buyer_id = :buyer_id";
-$stmt = $con->prepare($sql);
-$stmt->execute([':buyer_id' => $_SESSION['user_id']]);
-$purchase_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    FROM transactions t 
+    JOIN properties p ON t.property_id = p.property_id 
+    WHERE t.buyer_id = :buyer_id";
+$stmt = execute_named_query($con, $sql, [':buyer_id' => $_SESSION['user_id']]);
+$purchase_history = [];
+if ($stmt) {
+    $res = $stmt->get_result();
+    $purchase_history = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+}
 ?>
 <!DOCTYPE html>
 <html>
