@@ -7,7 +7,7 @@ RUN apt-get update && \
         libzip-dev \
         zip \
         unzip \
-    && docker-php-ext-install pdo pdo_mysql \
+    && docker-php-ext-install pdo pdo_mysql mysqli \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy application source
