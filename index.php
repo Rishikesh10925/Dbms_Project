@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         // Check if username exists
         $sql = "SELECT * FROM users WHERE username = :username";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([':username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

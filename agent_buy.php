@@ -13,14 +13,14 @@ $property_ids = $_POST['property_ids'];
 foreach ($property_ids as $property_id) {
     $sql = "INSERT INTO transactions (property_id, agent_id, transaction_type, status) 
             VALUES (:property_id, :agent_id, 'sale', 'pending')";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $con->prepare($sql);
     $stmt->execute([
         ':property_id' => $property_id,
         ':agent_id' => $agent_id
     ]);
 
     $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $con->prepare($sql);
     $stmt->execute([':property_id' => $property_id]);
 }
 ?>

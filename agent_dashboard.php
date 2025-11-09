@@ -15,7 +15,7 @@ if ($action == 'buy' && $_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         $city = $_POST['city'];
         $sql = "SELECT * FROM properties WHERE city = :city AND status = 'available'";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([':city' => $city]);
         $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -25,7 +25,7 @@ if ($action == 'buy' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Fetch agent's listed properties for bulk selling
 $sql = "SELECT * FROM properties WHERE user_id = :user_id AND status = 'available'";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':user_id' => $_SESSION['user_id']]);
 $agent_properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -34,7 +34,7 @@ $sql = "SELECT p.*, t.transaction_type, t.status AS transaction_status
         FROM transactions t 
         JOIN properties p ON t.property_id = p.property_id 
         WHERE t.agent_id = :agent_id";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':agent_id' => $_SESSION['user_id']]);
 $agent_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

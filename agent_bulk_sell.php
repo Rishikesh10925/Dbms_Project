@@ -14,14 +14,14 @@ try {
     foreach ($property_ids as $property_id) {
         // Verify the property belongs to the agent and is available
         $sql = "SELECT * FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([':property_id' => $property_id, ':user_id' => $agent_id]);
         $property = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($property) {
             $sql = "INSERT INTO transactions (property_id, agent_id, transaction_type, status) 
                     VALUES (:property_id, :agent_id, :transaction_type, 'pending')";
-            $stmt = $pdo->prepare($sql);
+            $stmt = $con->prepare($sql);
             $stmt->execute([
                 ':property_id' => $property_id,
                 ':agent_id' => $agent_id,
@@ -29,7 +29,7 @@ try {
             ]);
 
             $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
-            $stmt = $pdo->prepare($sql);
+            $stmt = $con->prepare($sql);
             $stmt->execute([':property_id' => $property_id]);
         }
     }

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['edit_property_id'])) 
 
         $sql = "INSERT INTO properties (user_id, property_type, property_size, size_unit, ownership_status, features, description, estimated_price_per_unit, total_value, future_value, seller_type, negotiation, brokering, location, city, usage_type) 
                 VALUES (:user_id, :property_type, :property_size, :size_unit, :ownership_status, :features, :description, :estimated_price_per_unit, :total_value, :future_value, :seller_type, :negotiation, :brokering, :location, :city, :usage_type)";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([
             ':user_id' => $user_id,
             ':property_type' => $property_type,
@@ -59,7 +59,7 @@ if (isset($_GET['delete_id'])) {
     try {
         $property_id = $_GET['delete_id'];
         $sql = "DELETE FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([':property_id' => $property_id, ':user_id' => $_SESSION['user_id']]);
         $success = "Property deleted successfully!";
     } catch (PDOException $e) {
@@ -69,7 +69,7 @@ if (isset($_GET['delete_id'])) {
 
 // Fetch user's listed properties
 $sql = "SELECT * FROM properties WHERE user_id = :user_id";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':user_id' => $_SESSION['user_id']]);
 $listed_properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -79,7 +79,7 @@ $sql = "SELECT t.transaction_id, t.property_id, t.buyer_id, t.transaction_type, 
         JOIN properties p ON t.property_id = p.property_id 
         JOIN users u ON t.buyer_id = u.user_id 
         WHERE p.user_id = :user_id AND t.status = 'pending'";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':user_id' => $_SESSION['user_id']]);
 $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

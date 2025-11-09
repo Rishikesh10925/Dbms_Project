@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($negotiation !== null) $sql .= " AND negotiation = :negotiation";
         if ($brokering !== null) $sql .= " AND brokering = :brokering";
 
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $params = [
             ':city' => $city,
             ':property_type' => $property_type,
@@ -55,7 +55,7 @@ $sql = "SELECT p.*, t.transaction_type, t.status AS transaction_status
         FROM transactions t 
         JOIN properties p ON t.property_id = p.property_id 
         WHERE t.buyer_id = :buyer_id";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':buyer_id' => $_SESSION['user_id']]);
 $purchase_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

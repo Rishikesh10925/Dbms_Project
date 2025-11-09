@@ -11,7 +11,7 @@ $property_id = $_GET['id'];
 $buyer_id = $_SESSION['user_id'];
 
 $sql = "SELECT * FROM properties WHERE property_id = :property_id AND status = 'available'";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':property_id' => $property_id]);
 $property = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insert transaction with pending status
         $sql = "INSERT INTO transactions (property_id, buyer_id, transaction_type, status) 
                 VALUES (:property_id, :buyer_id, :transaction_type, 'pending')";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([
             ':property_id' => $property_id,
             ':buyer_id' => $buyer_id,
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Update property status to pending
         $sql = "UPDATE properties SET status = 'pending' WHERE property_id = :property_id";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([':property_id' => $property_id]);
 
         $success = "Purchase request submitted! Waiting for seller confirmation.";

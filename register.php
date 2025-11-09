@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $sql = "INSERT INTO users (username, password, email, contact_info) 
             VALUES (:username, :password, :email, :contact_info)";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $con->prepare($sql);
     
     try {
         $stmt->execute([

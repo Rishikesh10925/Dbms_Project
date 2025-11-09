@@ -11,7 +11,7 @@ $property_id = $_GET['id'];
 $user_id = $_SESSION['user_id'];
 
 $sql = "SELECT * FROM properties WHERE property_id = :property_id AND user_id = :user_id AND status = 'available'";
-$stmt = $pdo->prepare($sql);
+$stmt = $con->prepare($sql);
 $stmt->execute([':property_id' => $property_id, ':user_id' => $user_id]);
 $property = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 future_value = :future_value, seller_type = :seller_type, negotiation = :negotiation, 
                 brokering = :brokering, location = :location, city = :city, usage_type = :usage_type 
                 WHERE property_id = :property_id AND user_id = :user_id";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $con->prepare($sql);
         $stmt->execute([
             ':property_type' => $property_type,
             ':property_size' => $property_size,
