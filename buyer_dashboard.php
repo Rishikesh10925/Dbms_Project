@@ -122,15 +122,15 @@ if ($stmt) {
                 </tr>
                 <?php foreach ($properties as $property): ?>
                     <tr>
-                        <td><?php echo $property['property_id']; ?></td>
-                        <td><?php echo $property['property_type']; ?></td>
-                        <td><?php echo $property['property_size'] . ' ' . $property['size_unit']; ?></td>
-                        <td><?php echo $property['location']; ?></td>
-                        <td><?php echo $property['city']; ?></td>
-                        <td><?php echo $property['total_value']; ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['property_id'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['property_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['property_size'] . ' ' . $property['size_unit'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['location'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['city'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['total_value'])); ?></td>
                         <td><?php echo $property['negotiation'] ? 'Yes' : 'No'; ?></td>
                         <td><?php echo $property['brokering'] ? 'Yes' : 'No'; ?></td>
-                        <td><a href="buy_property.php?id=<?php echo $property['property_id']; ?>">Buy</a></td>
+                        <td><a href="buy_property.php?id=<?php echo htmlspecialchars((string)($property['property_id'])); ?>">Buy</a></td>
                     </tr>
                 <?php endforeach; ?>
             </table>
@@ -151,12 +151,12 @@ if ($stmt) {
                 </tr>
                 <?php foreach ($purchase_history as $purchase): ?>
                     <tr>
-                        <td><?php echo $purchase['property_id']; ?></td>
-                        <td><?php echo $purchase['property_type']; ?></td>
-                        <td><?php echo $purchase['city']; ?></td>
-                        <td><?php echo $purchase['total_value']; ?></td>
-                        <td><?php echo $purchase['transaction_type']; ?></td>
-                        <td><?php echo $purchase['transaction_status']; ?></td>
+                        <td><?php echo htmlspecialchars((string)($purchase['property_id'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($purchase['property_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($purchase['city'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($purchase['total_value'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($purchase['transaction_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($purchase['transaction_status'])); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>

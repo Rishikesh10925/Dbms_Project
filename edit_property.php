@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <option value="barren_land" <?php if ($property['property_type'] == 'barren_land') echo 'selected'; ?>>Barren Land</option>
             </select>
             <label>Size:</label>
-            <input type="number" name="property_size" step="0.01" value="<?php echo $property['property_size']; ?>" required>
+            <input type="number" name="property_size" step="0.01" value="<?php echo htmlspecialchars((string)($property['property_size'])); ?>" required>
             <select name="size_unit">
                 <option value="sqm" <?php if ($property['size_unit'] == 'sqm') echo 'selected'; ?>>Square Meters</option>
                 <option value="sqyd" <?php if ($property['size_unit'] == 'sqyd') echo 'selected'; ?>>Square Yards</option>
@@ -111,15 +111,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <option value="disputed" <?php if ($property['ownership_status'] == 'disputed') echo 'selected'; ?>>Disputed</option>
             </select>
             <label>Features:</label>
-            <textarea name="features"><?php echo $property['features']; ?></textarea>
+            <textarea name="features"><?php echo htmlspecialchars((string)($property['features'])); ?></textarea>
             <label>Description:</label>
-            <textarea name="description"><?php echo $property['description']; ?></textarea>
+            <textarea name="description"><?php echo htmlspecialchars((string)($property['description'])); ?></textarea>
             <label>Price per Unit:</label>
-            <input type="number" name="estimated_price_per_unit" step="0.01" value="<?php echo $property['estimated_price_per_unit']; ?>" required>
+            <input type="number" name="estimated_price_per_unit" step="0.01" value="<?php echo htmlspecialchars((string)($property['estimated_price_per_unit'])); ?>" required>
             <label>Total Value:</label>
-            <input type="number" name="total_value" step="0.01" value="<?php echo $property['total_value']; ?>" required>
+            <input type="number" name="total_value" step="0.01" value="<?php echo htmlspecialchars((string)($property['total_value'])); ?>" required>
             <label>Future Value (optional):</label>
-            <input type="number" name="future_value" step="0.01" value="<?php echo $property['future_value']; ?>">
+            <input type="number" name="future_value" step="0.01" value="<?php echo htmlspecialchars((string)($property['future_value'])); ?>">
             <label>Seller Type:</label>
             <select name="seller_type" required>
                 <option value="owner" <?php if ($property['seller_type'] == 'owner') echo 'selected'; ?>>Owner</option>
@@ -130,9 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <label>Brokering:</label>
             <input type="checkbox" name="brokering" <?php if ($property['brokering']) echo 'checked'; ?>>
             <label>Location:</label>
-            <input type="text" name="location" value="<?php echo $property['location']; ?>" required>
+            <input type="text" name="location" value="<?php echo htmlspecialchars((string)($property['location'])); ?>" required>
             <label>City:</label>
-            <input type="text" name="city" value="<?php echo $property['city']; ?>" required>
+            <input type="text" name="city" value="<?php echo htmlspecialchars((string)($property['city'])); ?>" required>
             <label>Usage Type:</label>
             <select name="usage_type" required>
                 <option value="sale" <?php if ($property['usage_type'] == 'sale') echo 'selected'; ?>>Sale</option>

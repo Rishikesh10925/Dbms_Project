@@ -3,6 +3,10 @@
     $db_user = getenv('DB_USER');
     $db_pass = getenv('DB_PASS');
     $db_name = getenv('DB_NAME');
+    // Defaults target TiDB Cloud (port 4000, TLS required). For a local MySQL/MariaDB
+    // set DB_PORT=3306 and DB_SSL=false.
+    $db_port = (int) (getenv('DB_PORT') ?: 4000);
+    $db_ssl  = strtolower((string) getenv('DB_SSL')) !== 'false';
 
     // Path to the system's CA certificate bundle
     // This file is provided by the 'ca-certificates' package in your Docker container
@@ -14,13 +18,15 @@
         die("mysqli_init failed");
     }
 
-    // Set SSL options
-    // We provide the path to the CA bundle to verify the server's certificate
-    mysqli_ssl_set($con, NULL, NULL, $ca_path, NULL, NULL);
+    if ($db_ssl) {
+        // Set SSL options
+        // We provide the path to the CA bundle to verify the server's certificate
+        mysqli_ssl_set($con, NULL, NULL, $ca_path, NULL, NULL);
 
-    // Tell mysqli to verify the server's certificate
-    // This is required by TiDB
-    mysqli_options($con, MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, true);
+        // Tell mysqli to verify the server's certificate
+        // This is required by TiDB
+        mysqli_options($con, MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, true);
+    }
 
     // Establish the secure connection
     $connected = mysqli_real_connect(
@@ -29,9 +35,9 @@
         $db_user,
         $db_pass,
         $db_name,
-        4000, // TiDB Cloud port
+        $db_port, // 4000 = TiDB Cloud
         NULL,
-        MYSQLI_CLIENT_SSL // Force SSL
+        $db_ssl ? MYSQLI_CLIENT_SSL : 0 // Force SSL unless DB_SSL=false
     );
 
     if (!$connected) {

@@ -176,18 +176,18 @@ if ($stmt) {
                 </tr>
                 <?php foreach ($listed_properties as $property): ?>
                     <tr>
-                        <td><?php echo $property['property_id']; ?></td>
-                        <td><?php echo $property['property_type']; ?></td>
-                        <td><?php echo $property['property_size'] . ' ' . $property['size_unit']; ?></td>
-                        <td><?php echo ucfirst(str_replace('_', ' ', $property['ownership_status'])); ?></td>
-                        <td><?php echo $property['location']; ?></td>
-                        <td><?php echo $property['city']; ?></td>
-                        <td><?php echo $property['total_value']; ?></td>
-                        <td><?php echo $property['status']; ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['property_id'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['property_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['property_size'] . ' ' . $property['size_unit'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)(ucfirst(str_replace('_', ' ', $property['ownership_status'])))); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['location'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['city'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['total_value'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($property['status'])); ?></td>
                         <td>
                             <?php if ($property['status'] == 'available'): ?>
-                                <a href="edit_property.php?id=<?php echo $property['property_id']; ?>">Edit</a> |
-                                <a href="seller_dashboard.php?delete_id=<?php echo $property['property_id']; ?>" onclick="return confirm('Are you sure you want to delete this property?');">Delete</a>
+                                <a href="edit_property.php?id=<?php echo htmlspecialchars((string)($property['property_id'])); ?>">Edit</a> |
+                                <a href="seller_dashboard.php?delete_id=<?php echo htmlspecialchars((string)($property['property_id'])); ?>" onclick="return confirm('Are you sure you want to delete this property?');">Delete</a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -213,16 +213,16 @@ if ($stmt) {
                 </tr>
                 <?php foreach ($pending_requests as $request): ?>
                     <tr>
-                        <td><?php echo $request['property_id']; ?></td>
-                        <td><?php echo $request['property_type']; ?></td>
-                        <td><?php echo $request['property_size'] . ' ' . $request['size_unit']; ?></td>
-                        <td><?php echo $request['location']; ?></td>
-                        <td><?php echo $request['city']; ?></td>
-                        <td><?php echo $request['total_value']; ?></td>
-                        <td><?php echo $request['buyer_username']; ?></td>
-                        <td><?php echo $request['buyer_contact']; ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['property_id'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['property_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['property_size'] . ' ' . $request['size_unit'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['location'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['city'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['total_value'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['buyer_username'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($request['buyer_contact'])); ?></td>
                         <td>
-                            <a href="confirm_purchase.php?transaction_id=<?php echo $request['transaction_id']; ?>" onclick="return confirm('Confirm this purchase?');">Confirm</a>
+                            <a href="confirm_purchase.php?transaction_id=<?php echo htmlspecialchars((string)($request['transaction_id'])); ?>" onclick="return confirm('Confirm this purchase?');">Confirm</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

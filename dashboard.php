@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, <?php echo $_SESSION['username']; ?></h1>
+        <h1>Welcome, <?php echo htmlspecialchars((string)($_SESSION['username'])); ?></h1>
         <h2>Choose Your Role:</h2>
         <div class="role-buttons">
             <a href="seller_dashboard.php"><button>Sell</button></a>

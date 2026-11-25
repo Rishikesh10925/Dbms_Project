@@ -51,11 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php if (isset($success)) echo "<p class='success'>$success</p>"; ?>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
         <?php if (!isset($success)): ?>
-            <p><strong>Type:</strong> <?php echo $property['property_type']; ?></p>
-            <p><strong>Size:</strong> <?php echo $property['property_size'] . ' ' . $property['size_unit']; ?></p>
-            <p><strong>Location:</strong> <?php echo $property['location']; ?></p>
-            <p><strong>City:</strong> <?php echo $property['city']; ?></p>
-            <p><strong>Total Value:</strong> <?php echo $property['total_value']; ?></p>
+            <p><strong>Type:</strong> <?php echo htmlspecialchars((string)($property['property_type'])); ?></p>
+            <p><strong>Size:</strong> <?php echo htmlspecialchars((string)($property['property_size'] . ' ' . $property['size_unit'])); ?></p>
+            <p><strong>Location:</strong> <?php echo htmlspecialchars((string)($property['location'])); ?></p>
+            <p><strong>City:</strong> <?php echo htmlspecialchars((string)($property['city'])); ?></p>
+            <p><strong>Total Value:</strong> <?php echo htmlspecialchars((string)($property['total_value'])); ?></p>
             <form method="POST">
                 <button type="submit">Request Purchase</button>
             </form>

@@ -87,12 +87,12 @@ if ($stmt) {
                         </tr>
                         <?php foreach ($properties as $property): ?>
                             <tr>
-                                <td><input type="checkbox" name="property_ids[]" value="<?php echo $property['property_id']; ?>"></td>
-                                <td><?php echo $property['property_id']; ?></td>
-                                <td><?php echo $property['property_type']; ?></td>
-                                <td><?php echo $property['property_size'] . ' ' . $property['size_unit']; ?></td>
-                                <td><?php echo $property['city']; ?></td>
-                                <td><?php echo $property['total_value']; ?></td>
+                                <td><input type="checkbox" name="property_ids[]" value="<?php echo htmlspecialchars((string)($property['property_id'])); ?>"></td>
+                                <td><?php echo htmlspecialchars((string)($property['property_id'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['property_type'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['property_size'] . ' ' . $property['size_unit'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['city'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['total_value'])); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </table>
@@ -115,12 +115,12 @@ if ($stmt) {
                         </tr>
                         <?php foreach ($agent_properties as $property): ?>
                             <tr>
-                                <td><input type="checkbox" name="property_ids[]" value="<?php echo $property['property_id']; ?>"></td>
-                                <td><?php echo $property['property_id']; ?></td>
-                                <td><?php echo $property['property_type']; ?></td>
-                                <td><?php echo $property['property_size'] . ' ' . $property['size_unit']; ?></td>
-                                <td><?php echo $property['city']; ?></td>
-                                <td><?php echo $property['total_value']; ?></td>
+                                <td><input type="checkbox" name="property_ids[]" value="<?php echo htmlspecialchars((string)($property['property_id'])); ?>"></td>
+                                <td><?php echo htmlspecialchars((string)($property['property_id'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['property_type'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['property_size'] . ' ' . $property['size_unit'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['city'])); ?></td>
+                                <td><?php echo htmlspecialchars((string)($property['total_value'])); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </table>
@@ -149,12 +149,12 @@ if ($stmt) {
                 </tr>
                 <?php foreach ($agent_history as $transaction): ?>
                     <tr>
-                        <td><?php echo $transaction['property_id']; ?></td>
-                        <td><?php echo $transaction['property_type']; ?></td>
-                        <td><?php echo $transaction['city']; ?></td>
-                        <td><?php echo $transaction['total_value']; ?></td>
-                        <td><?php echo $transaction['transaction_type']; ?></td>
-                        <td><?php echo $transaction['transaction_status']; ?></td>
+                        <td><?php echo htmlspecialchars((string)($transaction['property_id'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($transaction['property_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($transaction['city'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($transaction['total_value'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($transaction['transaction_type'])); ?></td>
+                        <td><?php echo htmlspecialchars((string)($transaction['transaction_status'])); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>

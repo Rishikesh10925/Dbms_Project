@@ -1,166 +1,127 @@
+# REMA — Real Estate Management Application
 
+A PHP and MySQL web application where one account can act as a **seller**, **buyer** or **agent** to list, search and transact on properties. Built as a database-systems course project around a normalised relational schema.
+
+![PHP](https://img.shields.io/badge/PHP-8.1-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL%20%2F%20TiDB-schema-4479A1?logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 
 ---
-
-# Real Estate Management Application (REMA)
-
-This project is a web-based Real Estate Management Application (REMA) designed to facilitate property transactions and management for buyers, sellers, and agents. It integrates database management with a user-friendly interface to streamline real estate operations such as property listing, searching, buying, selling, and development requests.
-
-## Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Customization & Configuration](#customization--configuration)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ## Overview
-The Real Estate Management Application (REMA) is a comprehensive platform that enables users to manage real estate activities efficiently. Its primary objectives include:
 
-- **Property Listing & Searching**: Sellers can list properties, and buyers can search based on various criteria.
-- **Transaction Management**: Facilitates buying, selling, and brokering of properties with negotiation options.
-- **Development Services**: Agents can offer development services, and buyers can request property development.
-- **Analytics & Communication**: Provides investment analytics and chat functionality for user interaction.
+After signing in, a user picks a role for the session:
 
-This system serves as a practical demonstration of applying web development and database management concepts in a real estate context.
+| Role | What they can do |
+|---|---|
+| **Seller** | List a property (type, size and unit, ownership status, features, price per unit, total and projected future value, negotiable and brokerage flags, location, usage), edit or delete available listings, review and confirm buyer requests |
+| **Buyer** | Search by city, type, usage, price range, size range, negotiability and brokerage; request a property; track purchase history and status |
+| **Agent** | Browse a city's available properties and buy several at once, put their own properties up for sale in bulk, and view their agent transaction history. A development-services section is stubbed but not built yet |
 
-## Features
-
-### Buyer Dashboard
-- **Property Search**: Filter properties by city, type, usage, price, size, negotiation, and brokering options.
-- **Purchase Management**: Buy properties and view purchase history with development status.
-- **Chat**: Communicate with sellers for inquiries or negotiations.
-
-### Seller Dashboard
-- **Property Listing**: Add new properties with details like type, size, price, and features.
-- **Property Management**: Edit or delete listed properties.
-- **Buyer Requests**: Review and confirm pending buyer requests.
-- **Messages**: Engage in conversations with potential buyers.
-
-### Agent Dashboard
-- **Development Services**: Add and manage development services offered to buyers.
-- **Property Transactions**: Buy properties (including third-party purchases) and sell on behalf of clients.
-- **Development Requests**: Handle buyer requests for property development.
-
-### General Features
-- **User Authentication**: Secure login for buyers, sellers, and agents.
-- **Analytics**: Access investment analytics for informed decision-making (via `investment_analytics.php`).
-- **In-Page Navigation**: Smooth scrolling to sections within dashboards for better usability.
-
-## Project Structure
-The repository is organized into key files and directories:
+### Transaction lifecycle
 
 ```
-REMA/
-├── buyer_dashboard.php           # Buyer dashboard for searching and managing purchases
-├── seller_dashboard.php          # Seller dashboard for listing and managing properties
-├── agent_dashboard.php           # Agent dashboard for development and transactions
-├── config.php                    # Database configuration file
-├── dashboard.php                 # Main dashboard redirect page
-├── investment_analytics.php      # Analytics page for investment insights
-├── buy_property.php              # Script to handle property purchases
-├── edit_property.php             # Script to edit listed properties
-├── confirm_purchase.php          # Script to confirm buyer requests
-├── chat.php                      # Chat interface for user communication
-├── view_image.php                # Display property images
-├── buyer_development.php         # Buyer development request page
-├── view_development.php          # View confirmed development status
-├── add_development_service.php   # Add new development services (agent)
-├── remove_development_service.php# Remove development services (agent)
-├── confirm_development.php       # Confirm development requests (agent)
-├── agent_buy.php                 # Agent property purchase script
-├── agent_bulk_sell.php           # Agent bulk property selling script
-├── logout.php                    # Logout functionality
-└── README.md                     # This documentation file
+property: available ──buyer/agent request──▶ pending ──seller confirms──▶ sold (for sale) / pending (rent, lease, development)
+transaction:                                 pending ──seller confirms──▶ confirmed
 ```
 
-The project is built using PHP for backend logic, HTML/CSS for the frontend, and MySQL as the database.
+## Data model
 
-## Technologies Used
-- **Frontend**: HTML, CSS, Font Awesome (for icons)
-- **Backend**: PHP
-- **Database**: MySQL
-- **Web Server**: Apache (or any PHP-compatible server)
-- **JavaScript**: For smooth scrolling and dynamic features (e.g., total value calculation)
+Three InnoDB tables with foreign keys. The full DDL is in [`db.sql`](db.sql).
 
-## Installation
-Follow these steps to set up the project locally:
+```
+users (user_id PK, username UNIQUE, password, email, contact_info)
+   │ 1
+   │ n
+properties (property_id PK, user_id FK, property_type, property_size, size_unit,
+            ownership_status, features, description, estimated_price_per_unit,
+            total_value, future_value, seller_type, negotiation, brokering,
+            location, city, usage_type, status)
+   │ 1
+   │ n
+transactions (transaction_id PK, property_id FK, buyer_id FK?, agent_id FK?,
+              transaction_type, status)
+```
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/Rishikesh10925/REMA.git
-   ```
+## Security
 
-2. **Set Up the Database**:
-   - Create a MySQL database (e.g., `rema_db`) using phpMyAdmin or MySQL CLI.
-   - Import the database schema (create tables like `properties`, `users`, `transactions`, `development_requests`, `messages`, etc., based on the project requirements). If no SQL file is provided, define tables as per the PHP scripts.
-   - Update `config.php` with your database credentials:
-     ```php
-     <?php
-     $dsn = "mysql:host=localhost;dbname=rema_db;charset=utf8mb4";
-     $username = "";
-     $password = "";
-     $pdo = new PDO($dsn, $username, $password);
-     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-     ?>
-     ```
+- Every query goes through a small helper (`execute_named_query` in `config.php`) that turns named placeholders into **mysqli prepared statements**.
+- Passwords are stored with `password_hash` and checked with `password_verify`.
+- All database values are HTML-escaped on output.
+- Database credentials come only from environment variables. None are committed.
+- TLS with certificate verification is used by default (required by TiDB Cloud).
 
-3. **Configure the Server**:
-   - Install a PHP-enabled web server (e.g., XAMPP, WAMP, or LAMP).
-   - Place the `REMA` folder in your web server’s root directory (e.g., `htdocs` for XAMPP).
+## Tech stack
 
-4. **Access the Application**:
-   - Start your web server and MySQL service.
-   - Open a browser and navigate to `http://localhost/REMA/`.
-   - Log in using credentials set up in your database (default credentials may need to be added manually).
+| | |
+|---|---|
+| Backend | PHP 8.1, mysqli |
+| Database | MySQL 8 / MariaDB locally, TiDB Cloud in deployment |
+| Frontend | Server-rendered HTML and CSS |
+| Deployment | Docker image (`php:8.1-apache`). The entrypoint adapts Apache to a platform-provided `$PORT` (for example on Render) |
 
-## Usage
-1. **Login**: Access the main dashboard (`dashboard.php`) and log in as a buyer, seller, or agent.
-2. **Buyer Dashboard**:
-   - Use the search form to find properties.
-   - Buy properties and track purchases/development status.
-   - Chat with sellers for negotiations.
-3. **Seller Dashboard**:
-   - List new properties with detailed information.
-   - Manage existing listings and respond to buyer requests.
-   - View and reply to messages from buyers.
-4. **Agent Dashboard**:
-   - Add development services and handle buyer requests.
-   - Buy or sell properties on behalf of clients.
-5. **Navigation**: Click in-page links (e.g., "Search," "Properties," "History" for buyers; "List Property," "Requests," "Messages" for sellers) to jump to sections.
+## Getting started
 
-## Customization & Configuration
-- **Styling**: Modify the inline CSS in each dashboard file to adjust the look and feel.
-- **Functionality**: Extend PHP scripts to add features like email notifications, advanced analytics, or payment integration.
-- **Database**: Add new tables or fields (e.g., for additional property attributes) and update queries accordingly.
-- **JavaScript**: Enhance interactivity (e.g., form validation, live search) by adding more scripts.
+### Local (PHP + MySQL / MariaDB)
 
-## Contributing
-Contributions are welcome! To contribute:
-1. Fork the repository.
-2. Create a branch for your feature or bug fix:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add your feature description"
-   ```
-4. Push to your branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. Open a pull request with a detailed description of your changes.
+```bash
+git clone https://github.com/Rishikesh10925/Dbms_Project.git
+cd Dbms_Project
 
-## License
-This project is licensed under the MIT License. Feel free to use, modify, and distribute it as needed.
+mysql -u root -p -e "CREATE DATABASE rema"
+mysql -u root -p rema < db.sql
 
-## Acknowledgements
-- **Contributors**: Rishikesh Talpaliker,Lahari Makkena,Ratnachand Kancharla
-- **Inspiration**: This project showcases the integration of web technologies with database management for real estate operations, built as a learning exercise or practical application.
+export DB_HOST=127.0.0.1 DB_PORT=3306 DB_SSL=false \
+       DB_USER=root DB_PASS=yourpassword DB_NAME=rema
+php -S localhost:8000
+```
 
----
+Open <http://localhost:8000>, register an account and sign in.
+
+### Docker
+
+```bash
+docker build -t rema .
+docker run -p 8080:80 \
+  -e DB_HOST=... -e DB_USER=... -e DB_PASS=... -e DB_NAME=... \
+  rema
+```
+
+### Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME` | none | Database connection |
+| `DB_PORT` | `4000` | `4000` for TiDB Cloud, `3306` for MySQL |
+| `DB_SSL` | `true` | Set to `false` for a local server without TLS |
+| `PORT` | none | Apache listen port inside Docker |
+
+## Project structure
+
+```
+├── index.php              # login
+├── register.php           # sign up
+├── dashboard.php          # choose role
+├── seller_dashboard.php   # list, manage, delete, view buyer requests
+├── edit_property.php
+├── confirm_purchase.php   # seller confirms a request
+├── buyer_dashboard.php    # search and purchase history
+├── buy_property.php       # buyer request
+├── agent_dashboard.php    # bulk buy / bulk sell / history
+├── agent_buy.php, agent_bulk_sell.php
+├── logout.php
+├── config.php             # connection + prepared-statement helper
+├── db.sql                 # schema
+├── styles.css
+├── Dockerfile, docker-entrypoint.sh
+```
+
+## Limitations
+
+- Role choice is per session rather than stored per account, and pages do not restrict access by role.
+- Forms have no CSRF tokens.
+- There are no automated tests. The main flow (register → list → search → request → confirm) has been checked by hand against MariaDB.
+
+## Contributors
+
+Rishikesh Talpalikar ([@Rishikesh10925](https://github.com/Rishikesh10925)), Lahari Makkena, Ratnachand Kancharla.

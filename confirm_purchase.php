@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php if (isset($success)) echo "<p class='success'>$success</p>"; ?>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
         <?php if (!isset($success)): ?>
-            <p><strong>Property ID:</strong> <?php echo $transaction['property_id']; ?></p>
-            <p><strong>Transaction Type:</strong> <?php echo $transaction['transaction_type']; ?></p>
-            <p><strong>Buyer ID:</strong> <?php echo $transaction['buyer_id']; ?></p>
+            <p><strong>Property ID:</strong> <?php echo htmlspecialchars((string)($transaction['property_id'])); ?></p>
+            <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars((string)($transaction['transaction_type'])); ?></p>
+            <p><strong>Buyer ID:</strong> <?php echo htmlspecialchars((string)($transaction['buyer_id'])); ?></p>
             <form method="POST">
                 <button type="submit">Confirm Purchase</button>
             </form>
